@@ -86,10 +86,14 @@
   .latest-head .round { font-size: 18px; font-weight: 800; color: var(--ink); }
   .latest-head .round b { color: var(--lt-red); }
   .latest-head .date { font-size: 13px; color: var(--ink-3); }
-  .latest-balls { display: flex; align-items: center; gap: 6px; margin-top: 14px; flex-wrap: wrap; }
+  .latest-balls { display: flex; align-items: center; gap: 6px; margin: 14px 0 16px; flex-wrap: wrap; }
   .latest-balls .plus { color: var(--muted); font-weight: 700; font-size: 15px; margin: 0 2px; }
-  .latest-balls .bonus-group { display: flex; flex-direction: column; align-items: center; gap: 3px; }
-  .latest-balls .bonus-label { font-size: 10.5px; color: var(--ink-3); }
+  /* 보너스 볼은 본번호와 같은 라인, "보너스" 라벨은 볼 아래 절대배치 */
+  .latest-balls .bonus-group { position: relative; display: inline-flex; }
+  .latest-balls .bonus-label {
+    position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+    margin-top: 3px; font-size: 10.5px; color: var(--ink-3); white-space: nowrap;
+  }
 
   /* ---------- mode picker ---------- */
   .modes {
