@@ -13,7 +13,7 @@
 
 ## 사용법
 
-- **웹 (모바일·윈도우·맥)**: https://kimwanseob.github.io/lottoRecomender/
+- **웹 (모바일·윈도우·맥)**: https://niceguykws.github.io/lottoRecomender/
 - **로컬**: `index.html`을 더블클릭해 브라우저로 열면 됩니다.
 
 ### 추첨 방식 3가지
