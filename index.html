@@ -20,6 +20,7 @@
     --grid: #ECECEC;
     --lt-red: #EF0027;
     --lt-red-dark: #C70021;
+    --lt-blue: #0063CC;
     --dot: #B8BBC1;
     --shadow: 0 1px 3px rgba(17, 17, 17, .05), 0 6px 18px rgba(17, 17, 17, .04);
   }
@@ -210,9 +211,9 @@
     <h2>번호 뽑기</h2>
     <p class="sub">추첨 방식을 고르고 버튼을 누르면 6개 번호를 뽑습니다.</p>
     <div class="modes" role="group" aria-label="추첨 방식">
-      <button type="button" data-mode="weighted" aria-pressed="true">덜 나온 가중</button>
+      <button type="button" data-mode="unpopular" aria-pressed="true">비인기 조합</button>
+      <button type="button" data-mode="weighted" aria-pressed="false">덜 나온 가중</button>
       <button type="button" data-mode="least15" aria-pressed="false">최소 TOP 15</button>
-      <button type="button" data-mode="unpopular" aria-pressed="false">비인기 조합</button>
       <button type="button" data-mode="random" aria-pressed="false">완전 랜덤</button>
     </div>
     <p class="mode-desc" id="modeDesc"></p>
@@ -246,6 +247,7 @@
     </div>
     <div class="legend-note">
       <span class="k"><span class="swatch" style="background:var(--lt-red)"></span>최소 출현 TOP 10</span>
+      <span class="k"><span class="swatch" style="background:var(--lt-blue)"></span>최대 출현 TOP 10</span>
       <span class="k"><span class="swatch" style="background:var(--dot)"></span>그 외 번호</span>
     </div>
   </section>
@@ -348,7 +350,7 @@
     random: "1–45 전체에서 완전히 균등하게 뽑습니다."
   };
   const MODE_TAG = { weighted: "덜 나온 가중", least15: "최소 TOP 15", unpopular: "비인기 조합", random: "완전 랜덤" };
-  let mode = "weighted";
+  let mode = "unpopular";
   const modeDesc = document.getElementById("modeDesc");
   modeDesc.textContent = MODE_DESC[mode];
   const modeBtns = [...document.querySelectorAll(".modes button")];
@@ -546,23 +548,26 @@
   };
   const hideTip = () => tip.classList.remove("on");
 
+  const most10Set = new Set(MOST10);
   for (let n = 1; n <= 45; n++) {
-    const emph = least10Set.has(n);
+    const color = least10Set.has(n) ? "var(--lt-red)"
+      : most10Set.has(n) ? "var(--lt-blue)"
+      : "var(--dot)";
+    const emph = color !== "var(--dot)";
     svgEl("line", {
       x1: xPos(n), x2: xPos(n), y1: yPos(yMin), y2: yPos(FREQ[n - 1]),
-      stroke: emph ? "var(--lt-red)" : "var(--dot)",
-      "stroke-width": 1.5, opacity: emph ? 0.45 : 0.3
+      stroke: color, "stroke-width": 1.5, opacity: emph ? 0.45 : 0.3
     });
     const dotAttrs = {
       cx: xPos(n), cy: yPos(FREQ[n - 1]), r: emph ? 5 : 4,
-      fill: emph ? "var(--lt-red)" : "var(--dot)"
+      fill: color
     };
     if (emph) { dotAttrs.stroke = "#fff"; dotAttrs["stroke-width"] = 1.5; }
     svgEl("circle", dotAttrs);
     if (emph) {
       svgEl("text", {
         x: xPos(n), y: yPos(FREQ[n - 1]) - 9, "text-anchor": "middle",
-        "font-size": 10, "font-weight": 700, fill: "var(--lt-red)"
+        "font-size": 10, "font-weight": 700, fill: color
       }, n);
     }
     const hit = svgEl("rect", { x: xPos(n) - iw / 90, y: M.top, width: iw / 45, height: ih, fill: "transparent" });
