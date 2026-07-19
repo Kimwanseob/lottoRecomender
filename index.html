@@ -3,161 +3,135 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>로또 6/45 덜 나온 번호 추첨기</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/leetaewook/gmarket-sans-dynamic-subset/GmarketSans.css">
+<title>로또 6/45 번호 추첨기</title>
 <style>
+  /* 동행복권 공식 사이트 디자인 토큰 기반 (비공식 도구) — 공식과 동일하게 라이트 단일 테마 */
   :root {
-    --bg: #F4F4F1;
+    --bg: #F8F9FA;
     --surface: #FFFFFF;
-    --surface-2: #EFEFEA;
-    --ink: #21242B;
-    --ink-2: #5A6170;
-    --muted: #9AA0AB;
-    --line: #E4E4DF;
-    --accent: #8F6E14;
-    --accent-fill: #E8C452;
-    --accent-ink: #201800;
-    --dot: #B9BDC6;
-    --grid: #ECECE8;
-    --shadow: 0 1px 2px rgba(20,22,27,.06), 0 8px 24px rgba(20,22,27,.05);
-  }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #14161B;
-      --surface: #1C1F26;
-      --surface-2: #242832;
-      --ink: #EDEEF0;
-      --ink-2: #9BA1AD;
-      --muted: #6C7280;
-      --line: #2B2F39;
-      --accent: #E8C452;
-      --accent-fill: #E8C452;
-      --accent-ink: #201800;
-      --dot: #545B68;
-      --grid: #242830;
-      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.25);
-    }
-  }
-  :root[data-theme="light"] {
-    --bg: #F4F4F1;
-    --surface: #FFFFFF;
-    --surface-2: #EFEFEA;
-    --ink: #21242B;
-    --ink-2: #5A6170;
-    --muted: #9AA0AB;
-    --line: #E4E4DF;
-    --accent: #8F6E14;
-    --accent-fill: #E8C452;
-    --accent-ink: #201800;
-    --dot: #B9BDC6;
-    --grid: #ECECE8;
-    --shadow: 0 1px 2px rgba(20,22,27,.06), 0 8px 24px rgba(20,22,27,.05);
-  }
-  :root[data-theme="dark"] {
-    --bg: #14161B;
-    --surface: #1C1F26;
-    --surface-2: #242832;
-    --ink: #EDEEF0;
-    --ink-2: #9BA1AD;
-    --muted: #6C7280;
-    --line: #2B2F39;
-    --accent: #E8C452;
-    --accent-fill: #E8C452;
-    --accent-ink: #201800;
-    --dot: #545B68;
-    --grid: #242830;
-    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.25);
+    --surface-2: #F7F7F7;
+    --ink: #111111;
+    --ink-2: #333333;
+    --ink-3: #666666;
+    --muted: #888888;
+    --line: #E4E6EA;
+    --grid: #ECECEC;
+    --lt-red: #EF0027;
+    --lt-red-dark: #C70021;
+    --dot: #B8BBC1;
+    --shadow: 0 1px 3px rgba(17, 17, 17, .05), 0 6px 18px rgba(17, 17, 17, .04);
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html { -webkit-text-size-adjust: 100%; }
   body {
     background: var(--bg);
-    color: var(--ink);
+    color: var(--ink-2);
     font-family: "Pretendard Variable", Pretendard, "Apple SD Gothic Neo", "Malgun Gothic", system-ui, -apple-system, sans-serif;
     line-height: 1.55;
-    padding: 28px 16px 48px;
+    padding: 24px 16px 48px;
   }
-  .wrap { max-width: 680px; margin: 0 auto; display: flex; flex-direction: column; gap: 18px; }
+  .num-font {
+    font-family: "Gmarket Sans", "Pretendard Variable", Pretendard, "Malgun Gothic", system-ui, sans-serif;
+  }
+  .wrap { max-width: 720px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
 
   /* ---------- header ---------- */
-  header .eyebrow {
-    font-size: 12px; font-weight: 600; letter-spacing: .08em;
-    color: var(--ink-2);
+  header { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 4px 2px; }
+  .brand-roundel {
+    width: 46px; height: 46px; border-radius: 50%;
+    background: var(--lt-red); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 800; letter-spacing: -.02em;
+    font-family: "Gmarket Sans", Pretendard, sans-serif;
+    flex: none;
   }
-  header h1 {
-    font-size: clamp(26px, 6vw, 34px); font-weight: 800; letter-spacing: -.02em;
-    text-wrap: balance; margin-top: 4px;
+  header .titles { flex: 1; min-width: 200px; }
+  header h1 { font-size: clamp(21px, 5vw, 26px); font-weight: 800; color: var(--ink); letter-spacing: -.02em; }
+  header .eyebrow { font-size: 12.5px; color: var(--ink-3); margin-top: 1px; }
+  .chip-unofficial {
+    font-size: 11px; font-weight: 700; color: var(--ink-3);
+    border: 1px solid var(--line); background: var(--surface);
+    border-radius: 999px; padding: 3px 10px; white-space: nowrap;
   }
-  header .latest {
-    margin-top: 12px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
-    font-size: 13px; color: var(--ink-2);
-  }
-  header .latest .balls { display: inline-flex; gap: 4px; align-items: center; }
 
-  /* ---------- balls ---------- */
+  /* ---------- balls (공식 result-ball 스타일) ---------- */
   .ball {
     display: inline-flex; align-items: center; justify-content: center;
-    border-radius: 50%; font-weight: 800; color: #26282E;
+    border-radius: 50%; color: #fff; font-weight: 700;
+    font-family: "Gmarket Sans", Pretendard, sans-serif;
     font-variant-numeric: tabular-nums;
-    box-shadow: inset 0 -3px 0 rgba(0,0,0,.13);
   }
-  .ball.g1 { background: #FBC400; }
-  .ball.g2 { background: #69C8F2; }
-  .ball.g3 { background: #FF7272; }
-  .ball.g4 { background: #AAAAAA; }
-  .ball.g5 { background: #B0D840; }
-  .ball.sm { width: 26px; height: 26px; font-size: 12px; }
-  .ball.md { width: 38px; height: 38px; font-size: 16px; }
-  .ball.lg { width: 52px; height: 52px; font-size: 21px; }
-  .ball.bonus-sep { width: auto; height: auto; background: none; box-shadow: none; color: var(--muted); font-weight: 600; border-radius: 0; }
+  .ball.g1 { background: #E08F00; }
+  .ball.g2 { background: #0063CC; }
+  .ball.g3 { background: #D8314F; }
+  .ball.g4 { background: #6E7382; }
+  .ball.g5 { background: #2C9E44; }
+  .ball.sm { width: 28px; height: 28px; font-size: 13px; }
+  .ball.md { width: 36px; height: 36px; font-size: 15px; }
+  .ball.lg { width: 48px; height: 48px; font-size: 18px; }
 
   /* ---------- cards ---------- */
   .card {
     background: var(--surface); border: 1px solid var(--line); border-radius: 16px;
     padding: 20px; box-shadow: var(--shadow);
   }
-  .card h2 { font-size: 15px; font-weight: 700; letter-spacing: -.01em; }
-  .card .sub { font-size: 13px; color: var(--ink-2); margin-top: 2px; }
+  .card h2 { font-size: 16px; font-weight: 700; color: var(--ink); letter-spacing: -.01em; }
+  .card .sub { font-size: 13px; color: var(--ink-3); margin-top: 2px; }
+
+  /* ---------- 최신 회차 결과 (공식 당첨결과 카드 구성) ---------- */
+  .latest-head { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+  .latest-head .round { font-size: 18px; font-weight: 800; color: var(--ink); }
+  .latest-head .round b { color: var(--lt-red); }
+  .latest-head .date { font-size: 13px; color: var(--ink-3); }
+  .latest-balls { display: flex; align-items: center; gap: 6px; margin-top: 14px; flex-wrap: wrap; }
+  .latest-balls .plus { color: var(--muted); font-weight: 700; font-size: 15px; margin: 0 2px; }
+  .latest-balls .bonus-group { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+  .latest-balls .bonus-label { font-size: 10.5px; color: var(--ink-3); }
 
   /* ---------- mode picker ---------- */
   .modes {
-    display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px;
-    background: var(--surface-2); border-radius: 10px; padding: 4px; margin-top: 14px;
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px;
+    background: var(--surface-2); border: 1px solid var(--line);
+    border-radius: 10px; padding: 4px; margin-top: 14px;
   }
+  @media (max-width: 520px) { .modes { grid-template-columns: repeat(2, 1fr); } }
   .modes button {
-    appearance: none; border: 0; background: transparent; color: var(--ink-2);
-    font: inherit; font-size: 13px; font-weight: 600; padding: 8px 4px;
+    appearance: none; border: 0; background: transparent; color: var(--ink-3);
+    font: inherit; font-size: 13px; font-weight: 600; padding: 8px 2px;
     border-radius: 7px; cursor: pointer; transition: background .15s, color .15s;
   }
-  .modes button[aria-pressed="true"] { background: var(--surface); color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,.12); }
-  .mode-desc { font-size: 12.5px; color: var(--ink-2); margin-top: 10px; min-height: 2.6em; }
+  .modes button[aria-pressed="true"] { background: var(--lt-red); color: #fff; }
+  .mode-desc { font-size: 12.5px; color: var(--ink-3); margin-top: 10px; min-height: 2.6em; }
 
   /* ---------- draw area ---------- */
-  .slots { display: flex; justify-content: center; gap: clamp(6px, 2vw, 12px); margin: 18px 0 20px; }
+  .slots { display: flex; justify-content: center; gap: clamp(6px, 2vw, 12px); margin: 16px 0 6px; }
   .slot {
-    width: 52px; height: 52px; border-radius: 50%;
+    width: 48px; height: 48px; border-radius: 50%;
     border: 2px dashed var(--line); display: flex; align-items: center; justify-content: center;
   }
   .slot .ball { animation: pop .38s cubic-bezier(.2, 1.6, .4, 1) both; }
   @keyframes pop { from { transform: scale(.2); opacity: 0; } to { transform: scale(1); opacity: 1; } }
   @media (prefers-reduced-motion: reduce) { .slot .ball { animation: none; } }
   @media (max-width: 420px) {
-    .slot { width: 44px; height: 44px; }
-    .ball.lg { width: 44px; height: 44px; font-size: 18px; }
+    .slot { width: 42px; height: 42px; }
+    .ball.lg { width: 42px; height: 42px; font-size: 16px; }
   }
-
-  .draw-actions { display: flex; gap: 8px; justify-content: center; }
+  .draw-note { text-align: center; font-size: 12px; color: var(--muted); min-height: 1.6em; margin-bottom: 10px; }
+  .draw-actions { display: flex; justify-content: center; }
   .btn-draw {
     appearance: none; border: 0; cursor: pointer; font: inherit;
-    background: var(--accent-fill); color: var(--accent-ink);
+    background: var(--lt-red); color: #fff;
     font-size: 16px; font-weight: 800; letter-spacing: -.01em;
-    padding: 13px 40px; border-radius: 999px;
-    box-shadow: inset 0 -3px 0 rgba(0,0,0,.15);
-    transition: transform .1s, filter .15s;
+    padding: 13px 44px; border-radius: 999px;
+    transition: background .15s, transform .1s;
   }
-  .btn-draw:hover { filter: brightness(1.05); }
+  .btn-draw:hover { background: var(--lt-red-dark); }
   .btn-draw:active { transform: translateY(1px); }
-  button:focus-visible, .modes button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .btn-draw:disabled { opacity: .6; cursor: default; }
+  button:focus-visible { outline: 2px solid var(--lt-red); outline-offset: 2px; }
 
   /* ---------- history ---------- */
   .history { margin-top: 16px; display: flex; flex-direction: column; gap: 8px; }
@@ -171,20 +145,20 @@
   .history .tag { font-size: 11px; color: var(--muted); white-space: nowrap; }
   .btn-copy {
     appearance: none; font: inherit; font-size: 12px; font-weight: 600; cursor: pointer;
-    color: var(--ink-2); background: var(--surface); border: 1px solid var(--line);
+    color: var(--ink-3); background: var(--surface); border: 1px solid var(--line);
     border-radius: 7px; padding: 4px 10px; white-space: nowrap;
   }
-  .btn-copy:hover { color: var(--ink); }
+  .btn-copy:hover { color: var(--ink); border-color: var(--dot); }
 
-  /* ---------- least-drawn chips ---------- */
+  /* ---------- 출현 통계 칩 ---------- */
   .chips { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 14px; }
-  @media (max-width: 480px) { .chips { grid-template-columns: repeat(5, 1fr); gap: 6px; } }
+  @media (max-width: 480px) { .chips { gap: 6px; } }
   .chip {
     display: flex; flex-direction: column; align-items: center; gap: 5px;
     padding: 10px 4px 8px; border: 1px solid var(--line); border-radius: 12px;
     background: var(--surface-2);
   }
-  .chip .cnt { font-size: 11.5px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+  .chip .cnt { font-size: 11.5px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
   .chip .cnt b { color: var(--ink); font-weight: 700; }
 
   /* ---------- chart ---------- */
@@ -193,29 +167,40 @@
   .chart-box svg { display: block; width: 100%; height: auto; }
   .tooltip {
     position: absolute; pointer-events: none; z-index: 2;
-    background: var(--ink); color: var(--bg);
+    background: var(--ink); color: #fff;
     font-size: 12px; font-weight: 600; line-height: 1.4;
     padding: 6px 9px; border-radius: 8px; white-space: nowrap;
     transform: translate(-50%, -110%); opacity: 0; transition: opacity .12s;
   }
   .tooltip.on { opacity: 1; }
-  .legend-note { display: flex; gap: 14px; margin-top: 8px; font-size: 12px; color: var(--ink-2); flex-wrap: wrap; }
+  .legend-note { display: flex; gap: 14px; margin-top: 8px; font-size: 12px; color: var(--ink-3); flex-wrap: wrap; }
   .legend-note .k { display: inline-flex; align-items: center; gap: 5px; }
   .legend-note .swatch { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
 
   /* ---------- footer ---------- */
-  footer { font-size: 12px; color: var(--muted); line-height: 1.7; }
-  footer .warn { color: var(--ink-2); }
+  footer { font-size: 12px; color: var(--muted); line-height: 1.7; padding: 0 2px; }
+  footer .warn { color: var(--ink-3); }
 </style>
 
 </head>
 <body>
 <div class="wrap">
   <header>
-    <p class="eyebrow">동행복권 로또 6/45 · 제1회 – 제1233회 전 회차 분석</p>
-    <h1>덜 나온 번호 추첨기</h1>
-    <div class="latest" id="latestLine"></div>
+    <span class="brand-roundel num-font">6/45</span>
+    <div class="titles">
+      <h1>로또 6/45 번호 추첨기</h1>
+      <p class="eyebrow" id="eyebrow"></p>
+    </div>
+    <span class="chip-unofficial">비공식 통계 도구</span>
   </header>
+
+  <section class="card">
+    <div class="latest-head">
+      <span class="round" id="latestRound"></span>
+      <span class="date" id="latestDate"></span>
+    </div>
+    <div class="latest-balls" id="latestBalls"></div>
+  </section>
 
   <section class="card">
     <h2>번호 뽑기</h2>
@@ -223,10 +208,12 @@
     <div class="modes" role="group" aria-label="추첨 방식">
       <button type="button" data-mode="weighted" aria-pressed="true">덜 나온 가중</button>
       <button type="button" data-mode="least15" aria-pressed="false">최소 TOP 15</button>
+      <button type="button" data-mode="unpopular" aria-pressed="false">비인기 조합</button>
       <button type="button" data-mode="random" aria-pressed="false">완전 랜덤</button>
     </div>
     <p class="mode-desc" id="modeDesc"></p>
     <div class="slots" id="slots"></div>
+    <p class="draw-note" id="drawNote"></p>
     <div class="draw-actions">
       <button type="button" class="btn-draw" id="drawBtn">번호 뽑기</button>
     </div>
@@ -235,8 +222,14 @@
 
   <section class="card">
     <h2>역대 최소 출현 TOP 10</h2>
-    <p class="sub">1,233회 동안 본번호로 가장 적게 나온 번호들입니다.</p>
-    <div class="chips" id="chips"></div>
+    <p class="sub" id="leastSub"></p>
+    <div class="chips" id="chipsLeast"></div>
+  </section>
+
+  <section class="card">
+    <h2>역대 최대 출현 TOP 10</h2>
+    <p class="sub" id="mostSub"></p>
+    <div class="chips" id="chipsMost"></div>
   </section>
 
   <section class="card">
@@ -248,14 +241,15 @@
       </div>
     </div>
     <div class="legend-note">
-      <span class="k"><span class="swatch" style="background:var(--accent-fill)"></span>최소 출현 TOP 10</span>
+      <span class="k"><span class="swatch" style="background:var(--lt-red)"></span>최소 출현 TOP 10</span>
       <span class="k"><span class="swatch" style="background:var(--dot)"></span>그 외 번호</span>
     </div>
   </section>
 
   <footer>
-    <p>데이터 출처: 동행복권(dhlottery.co.kr) 회차별 당첨번호 · 제1233회(2026-07-18 추첨)까지 반영.</p>
-    <p class="warn">매 회차 추첨은 독립 시행이므로, 과거에 덜 나온 번호가 앞으로 더 잘 나온다는 통계적 근거는 없습니다. 재미로만 활용하세요.</p>
+    <p id="footSrc"></p>
+    <p id="footModel"></p>
+    <p class="warn">매 회차 추첨은 독립 시행이므로 어떤 조합이든 당첨 확률은 같습니다. 본 페이지는 동행복권과 무관한 비공식 도구이며, 재미로만 활용하세요.</p>
   </footer>
 </div>
 
@@ -267,6 +261,7 @@
   const META = {"latestRound":1233,"latestDate":"2026-07-18","latestNums":[2,7,20,25,37,40],"latestBonus":29,"total":1233};
   const FREQ = [169,155,172,162,153,165,169,158,136,161,165,179,179,172,168,168,171,176,169,170,166,145,147,166,153,165,181,157,155,158,168,144,174,184,162,164,173,170,167,173,150,157,163,164,175];
   const LAST = [1227,1233,1230,1231,1213,1226,1233,1230,1230,1217,1222,1232,1231,1231,1232,1227,1226,1231,1232,1233,1224,1232,1216,1232,1233,1226,1224,1230,1229,1228,1231,1223,1223,1229,1228,1232,1233,1231,1223,1233,1227,1230,1220,1228,1224];
+  const MODEL = {"mu":[4.107692307692307,139.04038461538462,0.6461538461538462,0.7884615384615384,1.8846153846153846,32.49230769230769,0.14038461538461539],"sd":[1.0795024056420546,30.378261202679536,0.7190970669638247,0.7878046043750677,0.5565638450433754,7.082748438550322,0.34738562887363134],"beta":[-10.491568,-0.032188,-0.069946,-0.016845,0.003496,0.014136,-0.019785,0.016015],"n":520,"r2":0.2478};
   /* DATA:END */
 
   const MAXF = Math.max(...FREQ);
@@ -274,7 +269,9 @@
     .sort((a, b) => (FREQ[a - 1] - FREQ[b - 1]) || (a - b));
   const LEAST10 = byFreqAsc.slice(0, 10);
   const LEAST15 = byFreqAsc.slice(0, 15);
+  const MOST10 = [...byFreqAsc].reverse().slice(0, 10);
   const least10Set = new Set(LEAST10);
+  const ALL45 = Array.from({ length: 45 }, (_, i) => i + 1);
 
   const groupClass = (n) => "g" + Math.min(5, Math.ceil(n / 10));
   const ballEl = (n, size) => {
@@ -284,31 +281,69 @@
     return s;
   };
 
-  // ---- 헤더: 최신 회차 ----
-  const renderLatest = () => {
-    const latestLine = document.getElementById("latestLine");
-    const lbl = document.createElement("span");
-    lbl.textContent = "제" + META.latestRound + "회 (" + META.latestDate + ")";
-    latestLine.appendChild(lbl);
-    const ballsWrap = document.createElement("span");
-    ballsWrap.className = "balls";
-    META.latestNums.forEach((n) => ballsWrap.appendChild(ballEl(n, "sm")));
-    const plus = document.createElement("span");
-    plus.className = "ball sm bonus-sep";
-    plus.textContent = "+";
-    ballsWrap.appendChild(plus);
-    ballsWrap.appendChild(ballEl(META.latestBonus, "sm"));
-    latestLine.appendChild(ballsWrap);
+  // ---- 인기도 모델 (update-data.mjs 의 featuresOf 와 동일해야 함) ----
+  const featuresOf = (nums) => {
+    const s = [...nums].sort((a, b) => a - b);
+    const sum = s.reduce((a, b) => a + b, 0);
+    const low31 = s.filter((n) => n <= 31).length;
+    const forty = s.filter((n) => n >= 40).length;
+    let consec = 0;
+    for (let i = 1; i < 6; i++) if (s[i] - s[i - 1] === 1) consec++;
+    const ld = {};
+    s.forEach((n) => { ld[n % 10] = (ld[n % 10] || 0) + 1; });
+    const sameLd = Math.max(...Object.values(ld));
+    const spread = s[5] - s[0];
+    const has7 = s.includes(7) ? 1 : 0;
+    return [low31, sum, consec, forty, sameLd, spread, has7];
   };
-  renderLatest();
+  const scoreCombo = (nums) => {
+    const f = featuresOf(nums);
+    return MODEL.beta[0] + f.reduce((acc, v, j) => acc + MODEL.beta[j + 1] * ((v - MODEL.mu[j]) / MODEL.sd[j]), 0);
+  };
+  // 균등 구매 대비 인기도 배율 (3등 적중 확률 234/8145060 기준)
+  const UNIFORM_LOG = Math.log(234 / 8145060);
+  const popularityOf = (nums) => Math.exp(scoreCombo(nums) - UNIFORM_LOG);
+
+  // ---- 헤더/최신 회차/푸터: META 에서 렌더링 ----
+  document.getElementById("eyebrow").textContent =
+    "동행복권 제1회 – 제" + META.latestRound + "회 전 회차 분석";
+  document.getElementById("latestRound").innerHTML =
+    "제<b>" + META.latestRound + "</b>회 당첨결과";
+  document.getElementById("latestDate").textContent = "(" + META.latestDate + " 추첨)";
+  const latestBalls = document.getElementById("latestBalls");
+  META.latestNums.forEach((n) => latestBalls.appendChild(ballEl(n, "md")));
+  const plus = document.createElement("span");
+  plus.className = "plus";
+  plus.textContent = "+";
+  latestBalls.appendChild(plus);
+  const bonusGroup = document.createElement("span");
+  bonusGroup.className = "bonus-group";
+  bonusGroup.appendChild(ballEl(META.latestBonus, "md"));
+  const bonusLabel = document.createElement("span");
+  bonusLabel.className = "bonus-label";
+  bonusLabel.textContent = "보너스";
+  bonusGroup.appendChild(bonusLabel);
+  latestBalls.appendChild(bonusGroup);
+
+  const totalFmt = META.total.toLocaleString("ko-KR");
+  document.getElementById("leastSub").textContent =
+    totalFmt + "회 동안 본번호로 가장 적게 나온 번호들입니다.";
+  document.getElementById("mostSub").textContent =
+    totalFmt + "회 동안 본번호로 가장 많이 나온 번호들입니다.";
+  document.getElementById("footSrc").textContent =
+    "데이터 출처: 동행복권(dhlottery.co.kr) 회차별 당첨번호 · 제" +
+    META.latestRound + "회(" + META.latestDate + " 추첨)까지 반영.";
+  document.getElementById("footModel").textContent =
+    "인기도 모델: 최근 " + MODEL.n + "회차의 등수별 당첨자 수·판매액으로 학습한 선형회귀 (R²=" + MODEL.r2 + ").";
 
   // ---- 추첨 방식 ----
   const MODE_DESC = {
-    weighted: "지금까지 덜 나온 번호일수록 뽑힐 확률이 높아지도록 가중치를 둡니다. (덜 나온 번호일수록 가중치 ↑)",
+    weighted: "지금까지 덜 나온 번호일수록 뽑힐 확률이 높아지도록 가중치를 둡니다.",
     least15: "역대 출현 횟수가 가장 적은 15개 번호 안에서만 균등하게 뽑습니다.",
+    unpopular: "당첨자 수 데이터로 학습한 인기도 모델이 사람들이 잘 안 고르는 조합을 찾습니다. 1등이 되면 나눠 갖는 인원이 적을 조합입니다.",
     random: "1–45 전체에서 완전히 균등하게 뽑습니다."
   };
-  const MODE_TAG = { weighted: "덜 나온 가중", least15: "최소 TOP 15", random: "완전 랜덤" };
+  const MODE_TAG = { weighted: "덜 나온 가중", least15: "최소 TOP 15", unpopular: "비인기 조합", random: "완전 랜덤" };
   let mode = "weighted";
   const modeDesc = document.getElementById("modeDesc");
   modeDesc.textContent = MODE_DESC[mode];
@@ -357,11 +392,22 @@
     return picked.sort((a, b) => a - b);
   };
 
+  // 후보를 무작위 생성해 인기도 예측이 가장 낮은 쪽에서 선택
+  const drawUnpopular = () => {
+    const cands = [];
+    for (let i = 0; i < 3000; i++) {
+      const c = sampleWeighted(ALL45, () => 1, 6);
+      cands.push([scoreCombo(c), c]);
+    }
+    cands.sort((a, b) => a[0] - b[0]);
+    return cands[Math.floor(rand() * 20)][1];
+  };
+
   const draw = () => {
-    const all = Array.from({ length: 45 }, (_, i) => i + 1);
-    if (mode === "weighted") return sampleWeighted(all, (n) => MAXF - FREQ[n - 1] + 1, 6);
+    if (mode === "weighted") return sampleWeighted(ALL45, (n) => MAXF - FREQ[n - 1] + 1, 6);
     if (mode === "least15") return sampleWeighted(LEAST15, () => 1, 6);
-    return sampleWeighted(all, () => 1, 6);
+    if (mode === "unpopular") return drawUnpopular();
+    return sampleWeighted(ALL45, () => 1, 6);
   };
 
   // ---- 히스토리 ----
@@ -408,11 +454,13 @@
 
   // ---- 뽑기 실행 ----
   const drawBtn = document.getElementById("drawBtn");
+  const drawNote = document.getElementById("drawNote");
   let drawing = false;
   drawBtn.addEventListener("click", () => {
     if (drawing) return;
     drawing = true;
     drawBtn.disabled = true;
+    drawNote.textContent = "";
     const nums = draw();
     const slots = slotsEl.children;
     for (let i = 0; i < 6; i++) slots[i].innerHTML = "";
@@ -422,6 +470,11 @@
       setTimeout(() => {
         slots[i].appendChild(ballEl(n, "lg"));
         if (i === 5) {
+          if (MODEL.n > 0) {
+            const pop = popularityOf(nums);
+            drawNote.textContent =
+              "예상 인기도: 균등 구매 대비 " + pop.toFixed(2) + "배 (낮을수록 당첨 시 독식 가능성 ↑)";
+          }
           addHistory(nums, MODE_TAG[mode]);
           drawing = false;
           drawBtn.disabled = false;
@@ -430,18 +483,22 @@
     });
   });
 
-  // ---- 최소 출현 TOP 10 칩 ----
-  const chipsEl = document.getElementById("chips");
-  LEAST10.forEach((n) => {
-    const c = document.createElement("div");
-    c.className = "chip";
-    c.appendChild(ballEl(n, "md"));
-    const t = document.createElement("span");
-    t.className = "cnt";
-    t.innerHTML = "<b>" + FREQ[n - 1] + "</b>회";
-    c.appendChild(t);
-    chipsEl.appendChild(c);
-  });
+  // ---- 최소/최대 출현 TOP 10 칩 ----
+  const fillChips = (elId, list) => {
+    const el = document.getElementById(elId);
+    list.forEach((n) => {
+      const c = document.createElement("div");
+      c.className = "chip";
+      c.appendChild(ballEl(n, "md"));
+      const t = document.createElement("span");
+      t.className = "cnt";
+      t.innerHTML = "<b>" + FREQ[n - 1] + "</b>회";
+      c.appendChild(t);
+      el.appendChild(c);
+    });
+  };
+  fillChips("chipsLeast", LEAST10);
+  fillChips("chipsMost", MOST10);
 
   // ---- 차트 (점 그래프) ----
   const SVGNS = "http://www.w3.org/2000/svg";
@@ -472,17 +529,15 @@
     svgEl("line", { x1: M.left, x2: W - M.right, y1: yPos(v), y2: yPos(v), stroke: "var(--grid)", "stroke-width": 1 });
     svgEl("text", { x: M.left - 7, y: yPos(v) + 3.5, "text-anchor": "end", "font-size": 10, fill: "var(--muted)" }, v);
   });
-
   [1, 5, 10, 15, 20, 25, 30, 35, 40, 45].forEach((n) => {
     svgEl("text", { x: xPos(n), y: H - 8, "text-anchor": "middle", "font-size": 10, fill: "var(--muted)" }, n);
   });
 
   const showTip = (n) => {
-    const f = FREQ[n - 1], l = LAST[n - 1];
-    tip.textContent = n + "번 · " + f + "회 출현 · 최근 제" + l + "회";
+    tip.textContent = n + "번 · " + FREQ[n - 1] + "회 출현 · 최근 제" + LAST[n - 1] + "회";
     const rect = box.getBoundingClientRect();
     tip.style.left = (xPos(n) / W * rect.width) + "px";
-    tip.style.top = (yPos(f) / H * rect.height) + "px";
+    tip.style.top = (yPos(FREQ[n - 1]) / H * rect.height) + "px";
     tip.classList.add("on");
   };
   const hideTip = () => tip.classList.remove("on");
@@ -491,19 +546,19 @@
     const emph = least10Set.has(n);
     svgEl("line", {
       x1: xPos(n), x2: xPos(n), y1: yPos(yMin), y2: yPos(FREQ[n - 1]),
-      stroke: emph ? "var(--accent-fill)" : "var(--dot)",
-      "stroke-width": 1.5, opacity: emph ? 0.55 : 0.3
+      stroke: emph ? "var(--lt-red)" : "var(--dot)",
+      "stroke-width": 1.5, opacity: emph ? 0.45 : 0.3
     });
     const dotAttrs = {
       cx: xPos(n), cy: yPos(FREQ[n - 1]), r: emph ? 5 : 4,
-      fill: emph ? "var(--accent-fill)" : "var(--dot)"
+      fill: emph ? "var(--lt-red)" : "var(--dot)"
     };
-    if (emph) { dotAttrs.stroke = "var(--surface)"; dotAttrs["stroke-width"] = 1.5; }
+    if (emph) { dotAttrs.stroke = "#fff"; dotAttrs["stroke-width"] = 1.5; }
     svgEl("circle", dotAttrs);
     if (emph) {
       svgEl("text", {
         x: xPos(n), y: yPos(FREQ[n - 1]) - 9, "text-anchor": "middle",
-        "font-size": 10, "font-weight": 700, fill: "var(--accent)"
+        "font-size": 10, "font-weight": 700, fill: "var(--lt-red)"
       }, n);
     }
     const hit = svgEl("rect", { x: xPos(n) - iw / 90, y: M.top, width: iw / 45, height: ih, fill: "transparent" });
