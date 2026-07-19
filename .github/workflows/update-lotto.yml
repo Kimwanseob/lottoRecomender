@@ -1,0 +1,35 @@
+name: 주간 로또 데이터 갱신
+
+on:
+  schedule:
+    # 매주 토요일 12:00 UTC = 21:00 KST (추첨 20:35 이후)
+    - cron: "0 12 * * 6"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: 최신 회차 수집 및 index.html 갱신
+        run: node update-data.mjs
+
+      - name: 변경사항 커밋 및 푸시
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "새 회차 없음 — 커밋 생략"
+          else
+            git commit -m "자동 갱신: $(TZ=Asia/Seoul date +'%Y-%m-%d %H:%M KST')"
+            git push
+          fi
