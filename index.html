@@ -182,6 +182,122 @@
   .legend-note .k { display: inline-flex; align-items: center; gap: 5px; }
   .legend-note .swatch { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
 
+  /* ---------- 내 로또 확인 (QR 스캔 · 자동 대조) ---------- */
+  .tk-summary {
+    display: none; align-items: center; gap: 8px; margin-top: 14px;
+    padding: 10px 12px; border-radius: 10px; font-size: 12.5px; font-weight: 600;
+    background: var(--surface-2); border: 1px solid var(--line); color: var(--ink-2);
+  }
+  .tk-summary.on { display: flex; }
+  .tk-summary.hit { background: #FDECEF; border-color: #F6C6CF; color: var(--lt-red-dark); }
+
+  .tk-actions { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+  .tk-btn {
+    appearance: none; font: inherit; font-size: 13.5px; font-weight: 700; cursor: pointer;
+    border: 1px solid var(--line); background: var(--surface); color: var(--ink-2);
+    border-radius: 10px; padding: 10px 14px; transition: border-color .15s, background .15s;
+  }
+  .tk-btn:hover { border-color: var(--dot); color: var(--ink); }
+  .tk-btn.primary { background: var(--lt-red); border-color: var(--lt-red); color: #fff; }
+  .tk-btn.primary:hover { background: var(--lt-red-dark); border-color: var(--lt-red-dark); }
+  .tk-btn:focus-visible { outline: 2px solid var(--lt-red); outline-offset: 2px; }
+  .tk-btn.ghost { border-style: dashed; color: var(--ink-3); }
+
+  .tk-empty { margin-top: 14px; font-size: 12.5px; color: var(--muted); }
+  .tk-list { margin-top: 14px; display: flex; flex-direction: column; gap: 10px; }
+  .tk-list:empty { display: none; }
+  .tk-item {
+    list-style: none; border: 1px solid var(--line); border-radius: 12px;
+    background: var(--surface-2); padding: 12px;
+  }
+  .tk-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .tk-round { font-size: 14.5px; font-weight: 800; color: var(--ink); }
+  .tk-badge {
+    font-size: 11.5px; font-weight: 700; border-radius: 999px; padding: 3px 10px;
+    display: inline-flex; align-items: center; gap: 5px; white-space: nowrap;
+  }
+  .tk-badge.now  { background: #E7F4EA; color: #1C7A32; }
+  .tk-badge.wait { background: #FBF1DE; color: #8A5A00; }
+  .tk-badge.past { background: #EDEEF0; color: var(--ink-3); }
+  .tk-when { font-size: 11.5px; color: var(--muted); }
+  .tk-del {
+    margin-left: auto; appearance: none; font: inherit; font-size: 11.5px; font-weight: 600;
+    cursor: pointer; color: var(--muted); background: transparent; border: 0; padding: 4px 2px;
+  }
+  .tk-del:hover { color: var(--lt-red); }
+
+  .tk-games { margin-top: 10px; display: flex; flex-direction: column; gap: 7px; }
+  .tk-game { display: flex; align-items: center; gap: 8px; }
+  .tk-game .lbl { font-size: 11.5px; font-weight: 700; color: var(--muted); width: 40px; flex: none; }
+  .tk-balls { display: flex; gap: 4px; flex-wrap: wrap; flex: 1; }
+  .ball.dim { background: var(--surface); color: var(--muted); border: 1.5px solid var(--line); font-weight: 600; }
+  .ball.bonus { box-shadow: 0 0 0 2px var(--surface-2), 0 0 0 3.5px var(--lt-blue); }
+  .tk-rank { font-size: 12px; font-weight: 800; white-space: nowrap; flex: none; }
+  .tk-rank.win { color: var(--lt-red); }
+  .tk-rank.lose { color: var(--muted); }
+  .tk-rank.wait { color: #8A5A00; }
+
+  /* 스캐너 오버레이 */
+  .tk-scan { position: fixed; inset: 0; z-index: 60; background: #0A0A0B; display: none; }
+  .tk-scan.on { display: block; }
+  .tk-scan video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .tk-scan-ui { position: absolute; inset: 0; display: flex; flex-direction: column; }
+  .tk-scan-bar {
+    display: flex; align-items: center; gap: 10px; padding: 16px;
+    color: #fff; background: linear-gradient(rgba(0,0,0,.55), rgba(0,0,0,0));
+  }
+  .tk-scan-bar h3 { font-size: 15px; font-weight: 800; letter-spacing: -.01em; }
+  .tk-close {
+    margin-left: auto; appearance: none; font: inherit; font-size: 13px; font-weight: 700;
+    color: #fff; background: rgba(255,255,255,.16); border: 0; border-radius: 999px;
+    padding: 7px 14px; cursor: pointer;
+  }
+  .tk-close:hover { background: rgba(255,255,255,.28); }
+  .tk-reticle { flex: 1; display: grid; place-items: center; }
+  .tk-frame {
+    width: min(74vw, 320px); aspect-ratio: 1; border-radius: 20px; position: relative;
+    border: 2px solid rgba(255,255,255,.9);
+    box-shadow: 0 0 0 100vmax rgba(0,0,0,.45);
+  }
+  .tk-frame::after {
+    content: ""; position: absolute; left: 8%; right: 8%; top: 0; height: 2px;
+    background: var(--lt-red); border-radius: 2px;
+    animation: tkSweep 2.1s ease-in-out infinite;
+  }
+  @keyframes tkSweep { 0%, 100% { top: 6%; } 50% { top: 94%; } }
+  @media (prefers-reduced-motion: reduce) { .tk-frame::after { animation: none; top: 50%; } }
+  .tk-scan-msg {
+    color: #fff; text-align: center; font-size: 13px; line-height: 1.6; padding: 18px 20px 28px;
+    background: linear-gradient(rgba(0,0,0,0), rgba(0,0,0,.6));
+  }
+  .tk-scan-msg b { color: #fff; }
+
+  /* 스캔 결과 시트 */
+  .tk-sheet {
+    position: absolute; left: 0; right: 0; bottom: 0; z-index: 3;
+    background: var(--surface); border-radius: 18px 18px 0 0; padding: 18px 18px 22px;
+    max-height: 82%; overflow-y: auto; display: none;
+  }
+  .tk-sheet.on { display: block; }
+  .tk-sheet .sub { font-size: 12.5px; color: var(--ink-3); margin-top: 6px; }
+  .tk-sheet .tk-games { margin-top: 14px; }
+  .tk-sheet .tk-actions { margin-top: 16px; }
+  .tk-sheet .tk-btn { flex: 1; text-align: center; }
+
+  /* 직접 입력 */
+  .tk-manual { display: none; margin-top: 14px; }
+  .tk-manual.on { display: block; }
+  .tk-field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 10px; }
+  .tk-field label { font-size: 12px; font-weight: 700; color: var(--ink-3); }
+  .tk-field input, .tk-field textarea {
+    font: inherit; font-size: 14px; color: var(--ink);
+    border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px;
+    background: var(--surface); width: 100%; resize: vertical;
+  }
+  .tk-field input:focus, .tk-field textarea:focus { outline: 2px solid var(--lt-red); outline-offset: -1px; border-color: var(--lt-red); }
+  .tk-field .hint { font-size: 11.5px; color: var(--muted); }
+  .tk-error { font-size: 12.5px; font-weight: 600; color: var(--lt-red); margin-top: 8px; min-height: 1.2em; }
+
   /* ---------- footer ---------- */
   footer { font-size: 12px; color: var(--muted); line-height: 1.7; padding: 0 2px; }
   footer .warn { color: var(--ink-3); }
@@ -205,6 +321,43 @@
       <span class="date" id="latestDate"></span>
     </div>
     <div class="latest-balls" id="latestBalls"></div>
+  </section>
+
+  <section class="card">
+    <h2>내 로또 확인</h2>
+    <p class="sub">용지의 QR을 스캔하면 번호를 저장해 두고, 추첨이 끝나면 열 때마다 자동으로 대조합니다.</p>
+
+    <p class="tk-summary" id="tkSummary"></p>
+
+    <div class="tk-actions">
+      <button type="button" class="tk-btn primary" id="tkScanBtn">QR 스캔</button>
+      <button type="button" class="tk-btn" id="tkPhotoBtn">사진에서 찾기</button>
+      <button type="button" class="tk-btn ghost" id="tkManualBtn">직접 입력</button>
+      <input type="file" id="tkFile" accept="image/*" hidden>
+    </div>
+
+    <div class="tk-manual" id="tkManual">
+      <div class="tk-field">
+        <label for="tkRound">회차</label>
+        <input type="number" id="tkRound" inputmode="numeric" min="1" max="9999" placeholder="예: 1236">
+      </div>
+      <div class="tk-field">
+        <label for="tkNums">번호 (한 줄에 한 게임)</label>
+        <textarea id="tkNums" rows="3" placeholder="1 7 13 22 30 41&#10;3 9 14 25 33 44"></textarea>
+        <span class="hint">공백이나 쉼표로 구분해 6개씩 입력하세요.</span>
+      </div>
+      <div class="tk-actions">
+        <button type="button" class="tk-btn primary" id="tkManualSave">저장</button>
+        <button type="button" class="tk-btn" id="tkManualCancel">취소</button>
+      </div>
+      <p class="tk-error" id="tkManualErr"></p>
+    </div>
+
+    <p class="tk-empty" id="tkEmpty">저장된 용지가 없습니다. QR을 스캔해 첫 용지를 추가해 보세요.</p>
+    <ul class="tk-list" id="tkList"></ul>
+    <div class="tk-actions" id="tkClearWrap" hidden>
+      <button type="button" class="tk-btn ghost" id="tkClear">저장된 용지 모두 지우기</button>
+    </div>
   </section>
 
   <section class="card">
@@ -255,8 +408,21 @@
   <footer>
     <p id="footSrc"></p>
     <p id="footModel"></p>
-    <p class="warn">매 회차 추첨은 독립 시행이므로 어떤 조합이든 당첨 확률은 같습니다. 본 페이지는 동행복권과 무관한 비공식 도구이며, 재미로만 활용하세요.</p>
+    <p class="warn">매 회차 추첨은 독립 시행이므로 어떤 조합이든 당첨 확률은 같습니다. 본 페이지는 동행복권과 무관한 비공식 도구이며, 재미로만 활용하세요. 당첨금 수령에는 실물 용지가 필요하고, 최종 확인은 동행복권 공식 채널에서 하세요.</p>
   </footer>
+</div>
+
+<div class="tk-scan" id="tkScan" role="dialog" aria-modal="true" aria-label="로또 용지 QR 스캔">
+  <video id="tkVideo" playsinline muted></video>
+  <div class="tk-scan-ui">
+    <div class="tk-scan-bar">
+      <h3>용지 QR 스캔</h3>
+      <button type="button" class="tk-close" id="tkScanClose">닫기</button>
+    </div>
+    <div class="tk-reticle"><div class="tk-frame"></div></div>
+    <p class="tk-scan-msg" id="tkScanMsg">용지 아래쪽 QR을 사각형 안에 맞춰 주세요.</p>
+  </div>
+  <div class="tk-sheet" id="tkSheet"></div>
 </div>
 
 <script>
@@ -269,6 +435,8 @@
   const LAST = [1234,1233,1230,1231,1213,1235,1235,1230,1230,1217,1235,1232,1231,1231,1235,1227,1226,1231,1234,1233,1224,1232,1216,1232,1233,1226,1224,1230,1229,1228,1234,1223,1223,1229,1234,1232,1233,1231,1235,1233,1227,1230,1235,1228,1224];
   const MODEL = {"mu":[4.111538461538461,138.98461538461538,0.6480769230769231,0.7865384615384615,1.8826923076923077,32.488461538461536,0.13846153846153847],"sd":[1.0773282204948293,30.382177117358363,0.7187035294985059,0.7860634262317319,0.5578878967368273,7.079755912952241,0.3453837587791343],"beta":[-10.492234,-0.031604,-0.069471,-0.016911,0.003401,0.014678,-0.020095,0.014984],"n":520,"r2":0.2444};
   /* DATA:END */
+
+  window.LOTTO_META = META;
 
   const MAXF = Math.max(...FREQ);
   const byFreqAsc = Array.from({ length: 45 }, (_, i) => i + 1)
@@ -578,6 +746,439 @@
   document.addEventListener("pointerdown", (e) => {
     if (!box.contains(e.target)) hideTip();
   });
+})();
+</script>
+
+<script>
+/* ---------- 내 로또 확인: QR 스캔 · 저장 · 자동 대조 ---------- */
+(() => {
+  "use strict";
+
+  const META = window.LOTTO_META || { latestRound: 0, latestNums: [], latestBonus: 0 };
+  const KEY = "lotto.tickets.v1";
+  const $ = (id) => document.getElementById(id);
+
+  const groupClass = (n) => "g" + Math.min(5, Math.ceil(n / 10));
+  const ball = (n, size, extra) => {
+    const s = document.createElement("span");
+    s.className = "ball " + size + " " + (extra || groupClass(n)) + " num-font";
+    s.textContent = String(n).padStart(2, "0");
+    return s;
+  };
+
+  /* ---- 티켓 URL 파서 ----
+     동행복권 QR = m.dhlottery.co.kr/qr.do?method=winQr&v=<4자리 회차><구분자+번호12자리>…
+     구분자는 q(자동)·m(수동)·s(반자동) 등 1글자, 뒤쪽 꼬리값은 무시한다. */
+  const parseTicket = (text) => {
+    const raw = String(text || "");
+    const at = raw.search(/[?&]v=/);
+    if (at < 0) return null;
+    const m = raw.slice(at + 3).match(/^(\d{4})((?:[a-zA-Z]\d{12})+)/);
+    if (!m) return null;
+    const round = +m[1];
+    if (!round) return null;
+    const games = m[2].match(/[a-zA-Z]\d{12}/g).map((g) => {
+      const nums = g.slice(1).match(/\d{2}/g).map(Number).sort((a, b) => a - b);
+      return { type: g[0].toLowerCase(), nums };
+    }).filter((g) => g.nums.every((n) => n >= 1 && n <= 45) && new Set(g.nums).size === 6);
+    if (!games.length) return null;
+    return { id: "v" + m[1] + m[2], round, games, savedAt: Date.now() };
+  };
+
+  /* ---- 당첨번호 조회: 최신 회차는 내장값, 그 외에는 data/draws.json ---- */
+  let drawsPromise = null;
+  const loadDraws = () => {
+    if (!drawsPromise) {
+      drawsPromise = fetch("data/draws.json")
+        .then((r) => (r.ok ? r.json() : Promise.reject(new Error("http " + r.status))))
+        .then((rows) => {
+          const map = new Map();
+          rows.forEach((d) => map.set(d.round, d));
+          return map;
+        })
+        .catch(() => null);
+    }
+    return drawsPromise;
+  };
+  const getDraw = async (round) => {
+    if (round === META.latestRound) return { round, nums: META.latestNums, bonus: META.latestBonus };
+    if (round > META.latestRound) return null;
+    const map = await loadDraws();
+    return (map && map.get(round)) || null;
+  };
+
+  const rankOf = (nums, draw) => {
+    const win = new Set(draw.nums);
+    const hit = nums.filter((n) => win.has(n)).length;
+    const bonus = nums.includes(draw.bonus);
+    if (hit === 6) return 1;
+    if (hit === 5 && bonus) return 2;
+    if (hit === 5) return 3;
+    if (hit === 4) return 4;
+    if (hit === 3) return 5;
+    return 0;
+  };
+
+  /* ---- 저장소 ---- */
+  const load = () => {
+    try {
+      const v = JSON.parse(localStorage.getItem(KEY) || "[]");
+      return Array.isArray(v) ? v : [];
+    } catch { return []; }
+  };
+  const save = (list) => {
+    try { localStorage.setItem(KEY, JSON.stringify(list)); return true; }
+    catch { return false; }
+  };
+  let tickets = load().sort((a, b) => b.round - a.round || b.savedAt - a.savedAt);
+
+  const addTicket = (t) => {
+    if (tickets.some((x) => x.id === t.id)) return "dup";
+    tickets = [t, ...tickets].sort((a, b) => b.round - a.round || b.savedAt - a.savedAt);
+    if (!save(tickets)) return "full";
+    render();
+    return "ok";
+  };
+
+  /* ---- 회차 상태 ---- */
+  const stateOf = (round) =>
+    round === META.latestRound ? { key: "now", label: "이번 회차 · 추첨 완료" }
+    : round > META.latestRound ? { key: "wait", label: "추첨 대기" }
+    : { key: "past", label: "지난 회차" };
+
+  /* ---- 렌더 ---- */
+  const listEl = $("tkList"), emptyEl = $("tkEmpty"), sumEl = $("tkSummary"), clearWrap = $("tkClearWrap");
+
+  const gameRow = (g, draw, pending) => {
+    const row = document.createElement("div");
+    row.className = "tk-game";
+    const lbl = document.createElement("span");
+    lbl.className = "lbl";
+    lbl.textContent = g.label + (g.type === "q" ? " 자동" : g.type === "m" ? " 수동" : "");
+    row.appendChild(lbl);
+
+    const balls = document.createElement("div");
+    balls.className = "tk-balls";
+    const win = draw ? new Set(draw.nums) : null;
+    g.nums.forEach((n) => {
+      let extra = null;
+      if (win) {
+        if (win.has(n)) extra = groupClass(n);
+        else if (n === draw.bonus) extra = groupClass(n) + " bonus";
+        else extra = "dim";
+      }
+      balls.appendChild(ball(n, "sm", extra));
+    });
+    row.appendChild(balls);
+
+    const rk = document.createElement("span");
+    if (!draw) {
+      rk.className = "tk-rank wait";
+      rk.textContent = pending ? "대기" : "확인 불가";
+    }
+    else {
+      const r = rankOf(g.nums, draw);
+      rk.className = "tk-rank " + (r ? "win" : "lose");
+      rk.textContent = r ? r + "등" : "낙첨";
+    }
+    row.appendChild(rk);
+    return row;
+  };
+
+  const render = async () => {
+    listEl.textContent = "";
+    emptyEl.hidden = tickets.length > 0;
+    clearWrap.hidden = tickets.length === 0;
+
+    let waiting = 0, offline = 0, checked = 0, best = 0, wins = 0;
+
+    for (const t of tickets) {
+      const st = stateOf(t.round);
+      const draw = await getDraw(t.round);
+
+      const li = document.createElement("li");
+      li.className = "tk-item";
+
+      const head = document.createElement("div");
+      head.className = "tk-head";
+      const rd = document.createElement("span");
+      rd.className = "tk-round num-font";
+      rd.textContent = "제" + t.round + "회";
+      const bd = document.createElement("span");
+      bd.className = "tk-badge " + st.key;
+      bd.textContent = st.label;
+      const del = document.createElement("button");
+      del.type = "button";
+      del.className = "tk-del";
+      del.textContent = "삭제";
+      del.addEventListener("click", () => {
+        tickets = tickets.filter((x) => x.id !== t.id);
+        save(tickets);
+        render();
+      });
+      head.append(rd, bd, del);
+      li.appendChild(head);
+
+      const games = document.createElement("div");
+      games.className = "tk-games";
+      t.games.forEach((g, i) => games.appendChild(gameRow({ ...g, label: String.fromCharCode(65 + i) }, draw, st.key === "wait")));
+      li.appendChild(games);
+
+      if (!draw) { if (st.key === "wait") waiting++; else offline++; }
+      else { checked++; t.games.forEach((g) => {
+        const r = rankOf(g.nums, draw);
+        if (r) { wins++; best = best ? Math.min(best, r) : r; }
+      }); }
+
+      listEl.appendChild(li);
+    }
+
+    if (!tickets.length) { sumEl.className = "tk-summary"; sumEl.textContent = ""; return; }
+    const parts = [];
+    if (wins) parts.push("당첨 " + wins + "건 · 최고 " + best + "등");
+    else if (checked) parts.push("당첨 없음");
+    if (waiting) parts.push("추첨 대기 " + waiting + "장");
+    if (offline) parts.push("지난 회차 " + offline + "장은 당첨번호를 불러오지 못했습니다");
+    sumEl.className = "tk-summary on" + (wins ? " hit" : "");
+    sumEl.textContent = "저장된 용지 " + tickets.length + "장" + (parts.length ? " — " + parts.join(" · ") : "");
+  };
+
+  /* ---- QR 디코더: BarcodeDetector 우선, 없으면 jsQR ---- */
+  let detector = null, jsqrReady = null;
+  const initDecoder = async () => {
+    if (detector !== null) return;
+    try {
+      if ("BarcodeDetector" in window) {
+        const fmts = await window.BarcodeDetector.getSupportedFormats();
+        if (fmts.includes("qr_code")) { detector = new window.BarcodeDetector({ formats: ["qr_code"] }); return; }
+      }
+    } catch { /* 폴백으로 진행 */ }
+    detector = false;
+  };
+  const loadJsQR = () => {
+    if (!jsqrReady) {
+      jsqrReady = new Promise((res, rej) => {
+        const s = document.createElement("script");
+        s.src = "vendor/jsqr.min.js";
+        s.onload = () => res(window.jsQR);
+        s.onerror = () => rej(new Error("jsQR 로드 실패"));
+        document.head.appendChild(s);
+      });
+    }
+    return jsqrReady;
+  };
+
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d", { willReadFrequently: true });
+
+  const decodeFrom = async (source, w, h) => {
+    await initDecoder();
+    if (detector) {
+      try {
+        const found = await detector.detect(source);
+        if (found.length) return found[0].rawValue;
+      } catch { /* jsQR로 재시도 */ }
+    }
+    const jsQR = await loadJsQR();
+    const scale = Math.min(1, 640 / Math.max(w, h));
+    canvas.width = Math.round(w * scale);
+    canvas.height = Math.round(h * scale);
+    ctx.drawImage(source, 0, 0, canvas.width, canvas.height);
+    const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const r = jsQR(img.data, img.width, img.height, { inversionAttempts: "attemptBoth" });
+    return r ? r.data : null;
+  };
+
+  /* ---- 스캔 결과 시트 ---- */
+  const sheet = $("tkSheet");
+  const showSheet = (t) => {
+    const st = stateOf(t.round);
+    sheet.textContent = "";
+
+    const head = document.createElement("div");
+    head.className = "tk-head";
+    const rd = document.createElement("span");
+    rd.className = "tk-round num-font";
+    rd.textContent = "제" + t.round + "회";
+    const bd = document.createElement("span");
+    bd.className = "tk-badge " + st.key;
+    bd.textContent = st.label;
+    head.append(rd, bd);
+    sheet.appendChild(head);
+
+    const note = document.createElement("p");
+    note.className = "sub";
+    note.textContent = st.key === "now" ? "최신 추첨 회차와 일치합니다. 저장하면 바로 대조합니다."
+      : st.key === "wait" ? "아직 추첨 전 회차입니다. 저장해 두면 추첨 후 자동으로 대조합니다."
+      : "제" + META.latestRound + "회보다 이전 회차입니다.";
+    sheet.appendChild(note);
+
+    const games = document.createElement("div");
+    games.className = "tk-games";
+    t.games.forEach((g, i) => games.appendChild(gameRow({ ...g, label: String.fromCharCode(65 + i) }, null, true)));
+    sheet.appendChild(games);
+
+    const acts = document.createElement("div");
+    acts.className = "tk-actions";
+    const ok = document.createElement("button");
+    ok.type = "button"; ok.className = "tk-btn primary"; ok.textContent = "저장";
+    ok.addEventListener("click", () => {
+      const r = addTicket(t);
+      closeScan();
+      if (r === "dup") toast("이미 저장된 용지입니다.");
+      else if (r === "full") toast("저장 공간이 가득 찼습니다.");
+    });
+    const again = document.createElement("button");
+    again.type = "button"; again.className = "tk-btn"; again.textContent = "다시 스캔";
+    again.addEventListener("click", () => { sheet.classList.remove("on"); resume(); });
+    acts.append(ok, again);
+    sheet.appendChild(acts);
+    sheet.classList.add("on");
+  };
+
+  const toast = (msg) => {
+    sumEl.className = "tk-summary on";
+    sumEl.textContent = msg;
+    setTimeout(render, 2200);
+  };
+
+  /* ---- 카메라 스캔 ---- */
+  const overlay = $("tkScan"), video = $("tkVideo"), scanMsg = $("tkScanMsg");
+  let stream = null, rafId = 0, scanning = false, tick = 0;
+
+  const setMsg = (html) => { scanMsg.innerHTML = html; };
+
+  const loop = async () => {
+    if (!scanning) return;
+    tick++;
+    if (tick % 3 === 0 && video.readyState >= 2 && video.videoWidth) {
+      let data = null;
+      try { data = await decodeFrom(video, video.videoWidth, video.videoHeight); } catch { /* 다음 프레임 */ }
+      if (data) {
+        const t = parseTicket(data);
+        if (t) {
+          scanning = false;
+          if (navigator.vibrate) navigator.vibrate(30);
+          showSheet(t);
+          return;
+        }
+        setMsg("로또 용지의 QR이 아닙니다. 용지 아래쪽 QR을 비춰 주세요.");
+      }
+    }
+    rafId = requestAnimationFrame(loop);
+  };
+  const resume = () => { if (!scanning) { scanning = true; loop(); } };
+
+  const closeScan = () => {
+    scanning = false;
+    cancelAnimationFrame(rafId);
+    if (stream) { stream.getTracks().forEach((t) => t.stop()); stream = null; }
+    video.srcObject = null;
+    sheet.classList.remove("on");
+    overlay.classList.remove("on");
+    document.body.style.overflow = "";
+  };
+
+  const openScan = async () => {
+    if (!window.isSecureContext || !navigator.mediaDevices?.getUserMedia) {
+      toast("카메라는 https 주소에서만 열립니다. 사진에서 찾기나 직접 입력을 이용하세요.");
+      return;
+    }
+    overlay.classList.add("on");
+    document.body.style.overflow = "hidden";
+    setMsg("용지 아래쪽 QR을 사각형 안에 맞춰 주세요.");
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { ideal: "environment" }, width: { ideal: 1280 } },
+        audio: false
+      });
+      video.srcObject = stream;
+      await video.play();
+      scanning = true;
+      tick = 0;
+      loop();
+    } catch (e) {
+      setMsg(e && e.name === "NotAllowedError"
+        ? "카메라 권한이 꺼져 있습니다. 브라우저 설정에서 허용한 뒤 다시 시도하세요."
+        : "카메라를 열 수 없습니다. <b>사진에서 찾기</b>로 스캔해 보세요.");
+    }
+  };
+
+  $("tkScanBtn").addEventListener("click", openScan);
+  $("tkScanClose").addEventListener("click", closeScan);
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && overlay.classList.contains("on")) closeScan(); });
+
+  /* ---- 사진에서 찾기 ---- */
+  const fileInput = $("tkFile");
+  $("tkPhotoBtn").addEventListener("click", () => fileInput.click());
+  fileInput.addEventListener("change", async () => {
+    const f = fileInput.files && fileInput.files[0];
+    fileInput.value = "";
+    if (!f) return;
+    toast("사진을 읽는 중…");
+    const img = new Image();
+    img.src = URL.createObjectURL(f);
+    try {
+      await img.decode();
+      const data = await decodeFrom(img, img.naturalWidth, img.naturalHeight);
+      const t = data && parseTicket(data);
+      if (!t) { toast("사진에서 로또 QR을 찾지 못했습니다. 더 가까이 찍어 보세요."); return; }
+      const r = addTicket(t);
+      if (r === "dup") toast("이미 저장된 용지입니다.");
+      else if (r === "full") toast("저장 공간이 가득 찼습니다.");
+    } catch {
+      toast("사진을 읽지 못했습니다.");
+    } finally {
+      URL.revokeObjectURL(img.src);
+    }
+  });
+
+  /* ---- 직접 입력 ---- */
+  const manual = $("tkManual"), errEl = $("tkManualErr");
+  $("tkManualBtn").addEventListener("click", () => {
+    manual.classList.toggle("on");
+    errEl.textContent = "";
+    if (manual.classList.contains("on")) {
+      $("tkRound").value = $("tkRound").value || (META.latestRound + 1);
+      $("tkRound").focus();
+    }
+  });
+  $("tkManualCancel").addEventListener("click", () => { manual.classList.remove("on"); errEl.textContent = ""; });
+  $("tkManualSave").addEventListener("click", () => {
+    const round = parseInt($("tkRound").value, 10);
+    if (!round || round < 1 || round > 9999) { errEl.textContent = "회차를 확인해 주세요."; return; }
+    const lines = $("tkNums").value.split("\n").map((s) => s.trim()).filter(Boolean);
+    if (!lines.length) { errEl.textContent = "번호를 한 줄에 6개씩 입력해 주세요."; return; }
+    const games = [];
+    for (const line of lines) {
+      const nums = line.split(/[^0-9]+/).filter(Boolean).map(Number);
+      if (nums.length !== 6 || new Set(nums).size !== 6 || nums.some((n) => n < 1 || n > 45)) {
+        errEl.textContent = "1–45 사이 서로 다른 번호 6개가 필요합니다: " + line;
+        return;
+      }
+      games.push({ type: "x", nums: nums.sort((a, b) => a - b) });
+    }
+    const t = {
+      id: "manual" + round + "-" + games.map((g) => g.nums.join(".")).join("|"),
+      round, games, savedAt: Date.now()
+    };
+    const r = addTicket(t);
+    if (r === "dup") { errEl.textContent = "이미 저장된 번호입니다."; return; }
+    if (r === "full") { errEl.textContent = "저장 공간이 가득 찼습니다."; return; }
+    errEl.textContent = "";
+    $("tkNums").value = "";
+    manual.classList.remove("on");
+  });
+
+  /* ---- 전체 삭제 ---- */
+  $("tkClear").addEventListener("click", () => {
+    if (!confirm("저장된 용지를 모두 지울까요?")) return;
+    tickets = [];
+    save(tickets);
+    render();
+  });
+
+  render();
 })();
 </script>
 
