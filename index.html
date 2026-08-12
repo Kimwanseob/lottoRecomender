@@ -192,6 +192,7 @@
   .tk-summary.hit { background: #FDECEF; border-color: #F6C6CF; color: var(--lt-red-dark); }
 
   .tk-actions { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+  .tk-actions[hidden] { display: none; }
   .tk-btn {
     appearance: none; font: inherit; font-size: 13.5px; font-weight: 700; cursor: pointer;
     border: 1px solid var(--line); background: var(--surface); color: var(--ink-2);
@@ -210,6 +211,49 @@
     list-style: none; border: 1px solid var(--line); border-radius: 12px;
     background: var(--surface-2); padding: 12px;
   }
+  .tk-item.pinned { background: var(--surface); border-color: var(--dot); }
+  .tk-item.selectable { cursor: pointer; }
+  .tk-item.sel { border-color: var(--lt-red); background: #FDECEF; }
+
+  /* 체크해서 여러 장 삭제 */
+  .tk-check { width: 18px; height: 18px; flex: none; margin: 0; accent-color: var(--lt-red); cursor: pointer; }
+  .tk-selbar {
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    margin-top: 12px; padding: 10px 12px;
+    border: 1px solid var(--line); border-radius: 10px; background: var(--surface-2);
+  }
+  .tk-selbar[hidden] { display: none; }
+  .tk-selall {
+    display: inline-flex; align-items: center; gap: 6px; cursor: pointer;
+    font-size: 12.5px; font-weight: 700; color: var(--ink-2);
+  }
+  .tk-selall input { width: 17px; height: 17px; margin: 0; accent-color: var(--lt-red); cursor: pointer; }
+  .tk-selcount { font-size: 12px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+  .tk-selbar .tk-btn { font-size: 12.5px; padding: 8px 14px; }
+  .tk-selbar #tkSelDel { margin-left: auto; }
+  .tk-btn.danger { background: var(--lt-red); border-color: var(--lt-red); color: #fff; }
+  .tk-btn.danger:hover { background: var(--lt-red-dark); border-color: var(--lt-red-dark); }
+  .tk-btn:disabled { opacity: .45; cursor: default; }
+  .tk-btn.danger:disabled:hover { background: var(--lt-red); border-color: var(--lt-red); }
+
+  /* 최근 저장분만 펼치고 나머지는 접어 두는 영역 */
+  .tk-more { margin-top: 10px; }
+  .tk-more[hidden] { display: none; }
+  .tk-more-btn {
+    appearance: none; font: inherit; font-size: 12.5px; font-weight: 700; cursor: pointer;
+    width: 100%; display: flex; align-items: center; justify-content: center; gap: 6px;
+    color: var(--ink-3); background: var(--surface); border: 1px dashed var(--line);
+    border-radius: 10px; padding: 9px 12px; transition: border-color .15s, color .15s;
+  }
+  .tk-more-btn:hover { color: var(--ink); border-color: var(--dot); }
+  .tk-more-btn:focus-visible { outline: 2px solid var(--lt-red); outline-offset: 2px; }
+  .tk-more-btn .caret { font-size: 9px; transition: transform .15s; }
+  .tk-more-btn[aria-expanded="true"] .caret { transform: rotate(180deg); }
+  .tk-more-btn .hit { color: var(--lt-red); font-weight: 800; }
+  .tk-more-btn .hit:empty { display: none; }
+
+  .tk-rest { max-height: min(60vh, 460px); overflow-y: auto; -webkit-overflow-scrolling: touch; }
+  .tk-rest[hidden] { display: none; }
   .tk-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
   .tk-round { font-size: 14.5px; font-weight: 800; color: var(--ink); }
   .tk-badge {
@@ -219,6 +263,7 @@
   .tk-badge.now  { background: #E7F4EA; color: #1C7A32; }
   .tk-badge.wait { background: #FBF1DE; color: #8A5A00; }
   .tk-badge.past { background: #EDEEF0; color: var(--ink-3); }
+  .tk-badge.recent { background: #FDECEF; color: var(--lt-red-dark); }
   .tk-when { font-size: 11.5px; color: var(--muted); }
   .tk-del {
     margin-left: auto; appearance: none; font: inherit; font-size: 11.5px; font-weight: 600;
@@ -355,8 +400,25 @@
 
     <p class="tk-empty" id="tkEmpty">저장된 용지가 없습니다. QR을 스캔해 첫 용지를 추가해 보세요.</p>
     <ul class="tk-list" id="tkList"></ul>
-    <div class="tk-actions" id="tkClearWrap" hidden>
-      <button type="button" class="tk-btn ghost" id="tkClear">저장된 용지 모두 지우기</button>
+    <div class="tk-more" id="tkMoreWrap" hidden>
+      <button type="button" class="tk-more-btn" id="tkMoreBtn" aria-expanded="false" aria-controls="tkRest">
+        <span id="tkMoreLabel">이전 용지 더 보기</span>
+        <span class="hit" id="tkMoreHit"></span>
+        <span class="caret" aria-hidden="true">▼</span>
+      </button>
+    </div>
+    <ul class="tk-list tk-rest" id="tkRest" hidden></ul>
+
+    <div class="tk-actions" id="tkManage" hidden>
+      <button type="button" class="tk-btn ghost" id="tkSelectBtn">선택해서 삭제</button>
+      <button type="button" class="tk-btn ghost" id="tkClear">모두 지우기</button>
+    </div>
+
+    <div class="tk-selbar" id="tkSelBar" hidden>
+      <label class="tk-selall"><input type="checkbox" id="tkSelAll"> 전체 선택</label>
+      <span class="tk-selcount" id="tkSelCount">0장 선택</span>
+      <button type="button" class="tk-btn danger" id="tkSelDel" disabled>삭제</button>
+      <button type="button" class="tk-btn" id="tkSelCancel">취소</button>
     </div>
   </section>
 
@@ -847,7 +909,47 @@
     : { key: "past", label: "지난 회차" };
 
   /* ---- 렌더 ---- */
-  const listEl = $("tkList"), emptyEl = $("tkEmpty"), sumEl = $("tkSummary"), clearWrap = $("tkClearWrap");
+  const listEl = $("tkList"), emptyEl = $("tkEmpty"), sumEl = $("tkSummary");
+  const restEl = $("tkRest"), moreWrap = $("tkMoreWrap"), moreBtn = $("tkMoreBtn"),
+        moreLabel = $("tkMoreLabel"), moreHit = $("tkMoreHit");
+  const manageEl = $("tkManage"), selBar = $("tkSelBar"), selAll = $("tkSelAll"),
+        selCount = $("tkSelCount"), selDel = $("tkSelDel");
+
+  /* 최근 저장한 용지 1장만 펼쳐 두고 나머지는 버튼으로 여닫는다 */
+  let expanded = false, restCount = 0, restWins = 0;
+  /* 체크 삭제 모드 */
+  let selectMode = false, expandedBefore = false;
+  const selected = new Set();
+
+  const applyMore = () => {
+    if (restCount === 0) expanded = false;
+    const open = expanded && restCount > 0;
+    moreWrap.hidden = restCount === 0 || selectMode;
+    restEl.hidden = !open;
+    moreBtn.setAttribute("aria-expanded", String(open));
+    moreLabel.textContent = open ? "접기" : "이전 용지 " + restCount + "장 더 보기";
+    moreHit.textContent = !open && restWins ? "· 당첨 " + restWins + "건" : "";
+    manageEl.hidden = selectMode || tickets.length < 2;
+    selBar.hidden = !selectMode;
+  };
+  moreBtn.addEventListener("click", () => { expanded = !expanded; applyMore(); });
+
+  const applySelCount = () => {
+    const n = selected.size;
+    selCount.textContent = n ? n + "장 선택" : "삭제할 용지를 체크하세요";
+    selDel.disabled = n === 0;
+    selDel.textContent = n ? "삭제 (" + n + ")" : "삭제";
+    selAll.checked = n > 0 && n === tickets.length;
+    selAll.indeterminate = n > 0 && n < tickets.length;
+  };
+
+  const setSelectMode = (on) => {
+    selectMode = on;
+    selected.clear();
+    if (on) { expandedBefore = expanded; expanded = true; }
+    else { expanded = expandedBefore; }
+    return render();
+  };
 
   const gameRow = (g, draw, pending) => {
     const row = document.createElement("div");
@@ -885,19 +987,30 @@
     return row;
   };
 
+  const newestOf = (list) =>
+    list.reduce((a, b) => (!a || (b.savedAt || 0) > (a.savedAt || 0) ? b : a), null);
+
+  let renderSeq = 0;
+
   const render = async () => {
+    const seq = ++renderSeq;
     listEl.textContent = "";
+    restEl.textContent = "";
     emptyEl.hidden = tickets.length > 0;
-    clearWrap.hidden = tickets.length === 0;
 
     let waiting = 0, offline = 0, checked = 0, best = 0, wins = 0;
+    const newest = newestOf(tickets);
+    restCount = Math.max(0, tickets.length - 1);
+    restWins = 0;
 
     for (const t of tickets) {
       const st = stateOf(t.round);
       const draw = await getDraw(t.round);
+      if (seq !== renderSeq) return; // 더 최신 렌더가 시작됨
+      const pinned = t === newest;
 
       const li = document.createElement("li");
-      li.className = "tk-item";
+      li.className = "tk-item" + (pinned ? " pinned" : "");
 
       const head = document.createElement("div");
       head.className = "tk-head";
@@ -907,16 +1020,48 @@
       const bd = document.createElement("span");
       bd.className = "tk-badge " + st.key;
       bd.textContent = st.label;
-      const del = document.createElement("button");
-      del.type = "button";
-      del.className = "tk-del";
-      del.textContent = "삭제";
-      del.addEventListener("click", () => {
-        tickets = tickets.filter((x) => x.id !== t.id);
-        save(tickets);
-        render();
-      });
-      head.append(rd, bd, del);
+      head.append(rd, bd);
+      if (pinned && tickets.length > 1) {
+        const rc = document.createElement("span");
+        rc.className = "tk-badge recent";
+        rc.textContent = "최근 저장";
+        head.appendChild(rc);
+      }
+
+      if (selectMode) {
+        const cb = document.createElement("input");
+        cb.type = "checkbox";
+        cb.className = "tk-check";
+        cb.checked = selected.has(t.id);
+        cb.setAttribute("aria-label", "제" + t.round + "회 용지 선택");
+        const sync = () => {
+          if (cb.checked) selected.add(t.id); else selected.delete(t.id);
+          li.classList.toggle("sel", cb.checked);
+          applySelCount();
+        };
+        cb.addEventListener("change", sync);
+        head.prepend(cb);
+        li.classList.add("selectable");
+        if (cb.checked) li.classList.add("sel");
+        // 볼이나 여백 어디를 눌러도 체크되도록
+        li.addEventListener("click", (e) => {
+          if (e.target === cb) return;
+          if (e.target.closest("button, a, input, label")) return;
+          cb.checked = !cb.checked;
+          sync();
+        });
+      } else {
+        const del = document.createElement("button");
+        del.type = "button";
+        del.className = "tk-del";
+        del.textContent = "삭제";
+        del.addEventListener("click", () => {
+          tickets = tickets.filter((x) => x.id !== t.id);
+          save(tickets);
+          render();
+        });
+        head.appendChild(del);
+      }
       li.appendChild(head);
 
       const games = document.createElement("div");
@@ -927,11 +1072,19 @@
       if (!draw) { if (st.key === "wait") waiting++; else offline++; }
       else { checked++; t.games.forEach((g) => {
         const r = rankOf(g.nums, draw);
-        if (r) { wins++; best = best ? Math.min(best, r) : r; }
+        if (r) {
+          wins++;
+          best = best ? Math.min(best, r) : r;
+          if (!pinned) restWins++;
+        }
       }); }
 
-      listEl.appendChild(li);
+      (pinned ? listEl : restEl).appendChild(li);
     }
+
+    if (selectMode && !tickets.length) { selectMode = false; selected.clear(); }
+    applyMore();
+    applySelCount();
 
     if (!tickets.length) { sumEl.className = "tk-summary"; sumEl.textContent = ""; return; }
     const parts = [];
@@ -1168,6 +1321,26 @@
     errEl.textContent = "";
     $("tkNums").value = "";
     manual.classList.remove("on");
+  });
+
+  /* ---- 체크해서 삭제 ---- */
+  $("tkSelectBtn").addEventListener("click", () => setSelectMode(true));
+  $("tkSelCancel").addEventListener("click", () => setSelectMode(false));
+
+  selAll.addEventListener("change", () => {
+    selected.clear();
+    if (selAll.checked) tickets.forEach((t) => selected.add(t.id));
+    render();
+  });
+
+  selDel.addEventListener("click", () => {
+    const n = selected.size;
+    if (!n) return;
+    if (!confirm("선택한 용지 " + n + "장을 지울까요?")) return;
+    tickets = tickets.filter((t) => !selected.has(t.id));
+    save(tickets);
+    // 렌더가 끝난 뒤에 알려야 요약줄이 안내 문구를 덮어쓰지 않는다
+    setSelectMode(false).then(() => toast(n + "장을 삭제했습니다."));
   });
 
   /* ---- 전체 삭제 ---- */
