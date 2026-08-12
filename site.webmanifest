@@ -1,0 +1,15 @@
+{
+  "name": "로또 6/45 번호 추첨기",
+  "short_name": "로또 6/45",
+  "description": "동행복권 회차 데이터로 번호를 추첨하고, 저장한 용지를 자동으로 대조하는 비공식 도구",
+  "lang": "ko",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "background_color": "#F8F9FA",
+  "theme_color": "#EF0027",
+  "icons": [
+    { "src": "icon-192.png", "type": "image/png", "sizes": "192x192" },
+    { "src": "icon-512.png", "type": "image/png", "sizes": "512x512" }
+  ]
+}
